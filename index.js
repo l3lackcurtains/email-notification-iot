@@ -55,7 +55,7 @@ function emailListener() {
 function emailListener2() {
   io.on('connection', (socket) => {
     const imap = {
-      user: 'madhavpoudel16@gmail.com',
+      user: 'king.ov.universe@gmail.com',
       password: 'th3rang3@#$MP',
       host: "imap.gmail.com",
       port: 993, 
