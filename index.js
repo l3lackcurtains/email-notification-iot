@@ -52,4 +52,26 @@ function emailListener() {
 }
 
 
-emailListener()
+function emailListener2() {
+  io.on('connection', (socket) => {
+    const imap = {
+      user: 'madhavpoudel16@gmail.com',
+      password: 'th3rang3@#$MP',
+      host: "imap.gmail.com",
+      port: 993, 
+      tls: true,
+      tlsOptions: { rejectUnauthorized: false }
+    }
+    const n = notifier(imap)
+    n.on('end', () => n.start())
+      .on('mail', mail => {
+        var mail = mail.from[0].address
+        console.log(mail)
+        socket.emit('newemail', { new: mail })
+      }).start()
+        
+    })
+}
+
+
+emailListener2()
