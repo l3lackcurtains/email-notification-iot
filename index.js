@@ -111,7 +111,6 @@ function broadlinkMessage(userId) {
 			tls: true,
 			tlsOptions: { rejectUnauthorized: false }
 		}
-		console.log(user)
 		const n = notifier(imap)
 		n.on('end', () => n.start())
 			.on('mail', mail => {
