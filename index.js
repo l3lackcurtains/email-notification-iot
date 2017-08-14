@@ -69,9 +69,6 @@ function emailListener() {
 					socket.emit('newemail', { hello: mail })
 				}).start()		
 			})
-			.on('error', function(err) {
-				console.log(err)
-			})
 		})
 }
 
@@ -106,7 +103,7 @@ function broadlinkMessage(userId) {
 		_id: userId
 	}, (err, user) => {
 		const imap = {
-			user: user.email,
+			user: 'x@gmail.com',
 			password: user.password,
 			host: "imap.gmail.com",
 			port: 993, 
@@ -138,8 +135,11 @@ function broadlinkMessage(userId) {
 					}
 				})
 			}).start()
-
-	})
+			n.on('error', function(err) {
+				console.log(err)
+			})
+		})
+		
 }
 
 emailListener2('5990f4b39d27b6234e8cfe05')
