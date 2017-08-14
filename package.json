@@ -4,11 +4,17 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "bcrypt-nodejs": "^0.0.3",
+    "bluebird": "^3.5.0",
     "electron-notifications": "^1.0.0",
     "express": "^4.15.3",
     "imap": "^0.8.19",
+    "jsonwebtoken": "^7.4.2",
     "mail-listener2": "^0.3.1",
     "mail-notifier": "^0.4.0",
+    "mongoose": "^4.11.6",
+    "passport": "^0.4.0",
+    "passport-jwt": "^2.2.1",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3"
   },
