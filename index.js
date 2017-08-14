@@ -67,8 +67,10 @@ function emailListener() {
 					var mail = mail.from[0].address
 					console.log(mail)
 					socket.emit('newemail', { hello: mail })
-				}).start()
-					
+				}).start()		
+			})
+			.on('error', function(err) {
+				console.log(err)
 			})
 		})
 }
