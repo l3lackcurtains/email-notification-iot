@@ -103,7 +103,7 @@ function broadlinkMessage(userId) {
 		_id: userId
 	}, (err, user) => {
 		const imap = {
-			user: 'x@gmail.com',
+			user: user.email,
 			password: user.password,
 			host: "imap.gmail.com",
 			port: 993, 
