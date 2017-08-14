@@ -19,6 +19,13 @@ router
 		res.json({ success: true, message: data })
 	})
 })
-
+.put('/messages/:id', function(req, res) {
+	Message.findByIdAndUpdate(req.params.id, { $set: req.query }, function(err, data) {
+		if (err) return res.send({ success: false, message: err })
+		Message.findById(data._id, function(err, updatedData) {
+			res.json({ success: true, message: updatedData })
+		})
+	})
+})
 
 module.exports = router
