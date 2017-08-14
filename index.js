@@ -141,8 +141,8 @@ function broadlinkMessage(userId) {
 	})
 }
 
-// emailListener2('5990f4b39d27b6234e8cfe05')
+emailListener2('5990f4b39d27b6234e8cfe05')
 
-// emailListener()
+emailListener()
 
 broadlinkMessage('5990f4b39d27b6234e8cfe05')
