@@ -84,8 +84,10 @@ function emailListener() {
 				}
 			})
 
-			io.on('disconnection', () => {
+			io.on('disconnect', () => {
 				console.log('we lost a client.')
+				var i = clients.indexOf(socket);
+				clients.splice(i, 1)
 			})
 		})
 }
