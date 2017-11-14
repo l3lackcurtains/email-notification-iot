@@ -76,9 +76,8 @@ function emailListener() {
 							body: mail.html,
 						}
 						console.log('new email received', data)
-						if(clients.length > 0) {
-							clients.map((c) => io.sockets.connected[c].emit('newemail', { mail: data }))
-						}
+						io.socket.broadcast.emit('newemail', { mail: data }))
+						
 					}).start()	
 				
 				}
