@@ -76,7 +76,7 @@ function emailListener() {
 							body: mail.html,
 						}
 						console.log('new email received', data)
-						io.socket.broadcast.emit('newemail', { mail: data })
+						io.broadcast.emit('newemail', { mail: data })
 						
 					}).start()	
 				
