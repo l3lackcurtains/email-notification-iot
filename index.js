@@ -56,6 +56,11 @@ function emailListener() {
 	io.on('connection', (socket) => {
 		clients.push(socket.id)
 		console.log('client connected.', socket.id, clients)
+		io.on('disconnect', (reason) => {
+			console.log('we lost a client.', reason)
+			var i = clients.indexOf(socket);
+			clients.splice(i, 1)
+		})
 		User.findOne({}, 'email password', function(err, data) {
 			if(!!data) {
 				const imap = {
@@ -82,12 +87,6 @@ function emailListener() {
 					}).start()	
 				
 				}
-			})
-
-			io.on('disconnect', () => {
-				console.log('we lost a client.')
-				var i = clients.indexOf(socket);
-				clients.splice(i, 1)
 			})
 		})
 }
