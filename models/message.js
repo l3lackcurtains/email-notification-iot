@@ -11,12 +11,8 @@ var MessageSchema = Schema({
 	newMail: {
 		type: String,
 		required: true
-	},
-	mail: {
-		type: String,
 	}
 }, { collection: 'message', timestamps: true })
-
 
 var Message = mongoose.model('Message', MessageSchema)
 

@@ -1,9 +1,11 @@
 var express = require('express')
-
+var bodyParser = require('body-parser')
+var helmet = require('helmet')
 var Imap = require('imap'),
 		inspect = require('util').inspect
 var mongoose = require('mongoose')
 var passport = require('passport')
+var Promise = require('bluebird')
 var app = express()
 
 var server = require('http').Server(app)
@@ -18,7 +20,12 @@ var api = require('./routes/api')
 var config = require('./utils/config')
 
 var port = process.env.PORT || 3000
-mongoose.Promise = require('bluebird')
+
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false, parameterLimit: 50000 }))
+app.use(helmet())
+
+mongoose.Promise = Promise
 // Setup Mongoose connection with mongoDB
 mongoose.connect(config.mdb)
 const db = mongoose.connection
@@ -36,114 +43,43 @@ app.get('/', (req, res) => {
 	res.send('This is entry point')
 })
 
-app.use('/user', user)
-app.use('/api', api)
+app.use('/api', user)
 
-/*
- *
- * Socket ...
-*/
-server.listen(port)
-
-console.log(`Listening to ${port}`)
+server.listen(port, () => {
+	console.log(`Listening to ${port}`)
+})
 
 const notifier = require('mail-notifier')
 
-
 function emailListener() {
 	io.on('connection', (socket) => {
-		socket.on('login', (data) => {
-			const imap = {
-				user: data.user,
-				password: data.pass,
-				host: "imap.gmail.com",
-				port: 993, 
-				tls: true,
-				tlsOptions: { rejectUnauthorized: false }
-			}
-			const n = notifier(imap)
-			n.on('end', () => n.start())
-				.on('mail', mail => {
-					var mail = mail.from[0].address
-					console.log(mail)
-					socket.emit('newemail', { hello: mail })
-				}).start()		
-			})
-		})
-}
-
-
-function emailListener2(userId) {
-	User.findOne({
-		_id: userId
-	}, function(err, user) {
-		const imap = {
-			user: user.email,
-			password: user.password,
-			host: "imap.gmail.com",
-			port: 993, 
-			tls: true,
-			tlsOptions: { rejectUnauthorized: false }
-		}
-		io.on('connection', (socket) => {
-		const n = notifier(imap)
-		n.on('end', () => n.start())
-			.on('mail', mail => {
-			var mail = mail.from[0].address
-			console.log(mail)
-			socket.emit('newemail', { new: mail })
-			}).start()
-			
-		})
-	})
-}
-
-function broadlinkMessage(userId) {
-	User.findOne({
-		_id: userId
-	}, (err, user) => {
-		const imap = {
-			user: user.email,
-			password: user.password,
-			host: "imap.gmail.com",
-			port: 993, 
-			tls: true,
-			tlsOptions: { rejectUnauthorized: false }
-		}
-		const n = notifier(imap)
-		n.on('end', () => n.start())
-			.on('mail', mail => {
-				var mail = mail.from[0].address
-				var newData = {
-					uid: userId,
-					newMail: true,
-					mail: mail
+		console.log('client connected.')
+		User.findOne({}, 'email password', function(err, data) {
+			if(!!data) {
+				const imap = {
+					user: data.email,
+					password: data.password,
+					host: "imap.gmail.com",
+					port: 993, 
+					tls: true,
+					tlsOptions: { rejectUnauthorized: false }
 				}
-				Message.findOneAndUpdate({ uid: userId }, { $set: newData }, (err, data) => {
-					if (err) console.log({ success: false, message: err })
-					if (!data) {
-						var newMessage = new Message(newData)
-						newMessage.save((err1, data) => {
-							if (err) console.log({ success: false, message: err1 })
-							console.log({ success: true, message: data, status: 'new' })
-						})
-					} else {
-						Message.findOne({ uid: userId }, (err2, updatedData) => {
-							if (err) console.log({ success: false, message: err2 })
-							console.log({ success: true, message: updatedData, status: 'updated' })
-						})
-					}
-				})
-			}).start()
-			n.on('error', function(err) {
-				console.log(err)
+				const n = notifier(imap)
+				n.on('end', () => n.start())
+					.on('mail', mail => {
+						const data = {
+							from: mail.headers.from,
+							subject: mail.headers.subject,
+							date: mail.date,
+							body: mail.html,
+						}
+						console.log('new email received', data)
+						socket.emit('newemail', { mail: data })
+					}).start()	
+				
+				}
 			})
 		})
-		
 }
-
-emailListener2('5990f4b39d27b6234e8cfe05')
 
 emailListener()
-
-broadlinkMessage('5990f4b39d27b6234e8cfe05')
