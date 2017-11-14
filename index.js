@@ -76,13 +76,15 @@ function emailListener() {
 							body: mail.html,
 						}
 						console.log('new email received', data)
-						clients.map((c) => io.sockets.connected[c].emit('newemail', { mail: data }))
+						if(clients.length > 0) {
+							clients.map((c) => io.sockets.connected[c].emit('newemail', { mail: data }))
+						}
 					}).start()	
 				
 				}
 			})
 
-			io.on('close', () => {
+			io.on('disconnection', () => {
 				console.log('we lost a client.')
 			})
 		})
