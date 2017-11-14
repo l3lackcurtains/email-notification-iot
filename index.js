@@ -52,8 +52,10 @@ server.listen(port, () => {
 const notifier = require('mail-notifier')
 
 function emailListener() {
+	var clients = []
 	io.on('connection', (socket) => {
-		console.log('client connected.')
+		clients.push(socket.id)
+		console.log('client connected.', socket.id, clients)
 		User.findOne({}, 'email password', function(err, data) {
 			if(!!data) {
 				const imap = {
@@ -74,10 +76,14 @@ function emailListener() {
 							body: mail.html,
 						}
 						console.log('new email received', data)
-						socket.broadcast.emit('newemail', { mail: data })
+						clients.map((c) => io.sockets.connected[c].emit('newemail', { mail: data }))
 					}).start()	
 				
 				}
+			})
+
+			io.on('close', () => {
+				console.log('we lost a client.')
 			})
 		})
 }
