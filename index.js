@@ -82,6 +82,7 @@ function emailListener() {
 						}
 						console.log('new email received', data)
 						if(clients.length > 0) {
+							console.log(io.sockets.connected[c])
 							clients.map((c) => io.sockets.connected[c].emit('newemail', { mail: data }))
 						}
 					}).start()	
