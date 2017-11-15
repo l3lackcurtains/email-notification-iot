@@ -14,9 +14,13 @@ var io = require('socket.io')(server)
 
 var User = require('./models/user')
 var Message = require('./models/message')
+var Inbox = require('./models/inbox')
+var Email = require('./models/email')
 
 var user = require('./routes/user')
-var api = require('./routes/api')
+var email = require('./routes/email')
+var inbox = require('./routes/inbox')
+
 var config = require('./utils/config')
 
 var port = process.env.PORT || 3000
@@ -44,6 +48,8 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api', user)
+app.use('/api', email)
+app.use('/api', inbox)
 
 server.listen(port, () => {
 	console.log(`Listening to ${port}`)
@@ -52,7 +58,7 @@ server.listen(port, () => {
 const notifier = require('mail-notifier')
 
 function emailListener() {
-	var clients = []
+	let clients = []
 	io.on('connection', (socket) => {
 		clients.push(socket.id)
 		console.log('client connected.', socket.id, clients)
@@ -60,6 +66,9 @@ function emailListener() {
 			console.log('we lost a client.', reason)
 			var i = clients.indexOf(socket);
 			clients.splice(i, 1)
+		})
+		io.on('start', (data) => {
+			console.log('start', data)
 		})
 		User.findOne({}, 'email password', function(err, data) {
 			if(!!data) {
@@ -74,17 +83,28 @@ function emailListener() {
 				const n = notifier(imap)
 				n.on('end', () => n.start())
 					.on('mail', mail => {
-						const data = {
-							from: mail.headers.from,
-							subject: mail.headers.subject,
-							date: mail.date,
-							body: mail.html,
-						}
-						console.log('new email received', data)
-						if(clients.length > 0) {
-							console.log(io.sockets.connected[c])
-							clients.map((c) => io.sockets.connected[c].emit('newemail', { mail: data }))
-						}
+						Email.find({}, 'email', (err, data) => {
+							!!data && !err && data.map(async (d) => {
+								if(d.email === mail.from[0].address) {
+									const newInbox = Inbox({
+										from: mail.headers.from,
+										date: mail.date,
+										subject: mail.headers.subject,
+										body: mail.html,
+									})
+									await newInbox.save()
+									const inboxData = {
+										from: mail.headers.from,
+										subject: mail.headers.subject,
+										date: mail.date,
+										body: mail.html,
+									}
+									if(clients.length > 0) {
+										clients.map((c) => io.to(c).emit('newemail', { mail: inboxData }))
+									}
+								}
+							})
+						})
 					}).start()	
 				
 				}

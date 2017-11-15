@@ -6,7 +6,7 @@ var config = require('../utils/config')
 
 var router = express.Router()
 
-router.post('/users', function(req, res) {
+router.post('/users', (req, res) => {
   const imap = {
     user: req.body.email,
     password: req.body.password,
@@ -21,11 +21,10 @@ router.post('/users', function(req, res) {
       email: req.body.email,
       password: req.body.password
     })
-    User.find({}, 'email', function(err, data) {
-      if(data) User.collection.drop()
-      newUser.save(function(err) {
+    return User.find({}, 'email', (err, data) => {
+      if(!!data) User.collection.drop()
+      return newUser.save((err) => {
         if (err) return res.json({ success: false, message: 'Something went wrong, Try again.', error: err })
-        console.log('created')
         return res.json({ success: true, message: 'User successfully registered.'})
       })
     })
@@ -35,19 +34,18 @@ router.post('/users', function(req, res) {
     }).start()
 })
 
-router.delete('/users', function(req, res) {
-  User.find({}, 'email', function(err, data) {
-    if(data) User.collection.drop()
-    console.log('deleted')
+router.delete('/users', (req, res) => {
+  return User.find({}, 'email', (err, data) => {
+    if(data) return User.collection.drop()
     return res.json({ success: true, message: 'Deleted user successfully' })
 	})	
 })
 
 
-router.get('/users', function(req, res) {
-	User.find({}, 'email', function(err, data) {
+router.get('/users', (req, res) => {
+	return User.find({}, 'email', (err, data) => {
     if (err) return res.send({ success: false, message: err })
-		res.json({ success: true, message: data[0]})
+		return res.json({ success: true, message: data[0]})
 	})
 })
 
