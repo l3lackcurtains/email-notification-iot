@@ -64,14 +64,14 @@ function emailListener() {
 	io.on('connection', async (socket) => {
 
 		// on we have active clients
-		await io.clients(async (error, clients) => {
+		io.clients((error, clients) => {
 			if (error) console.log('Error due to clients.', error)
 			console.log('*****************************************************************')
 			console.log('New Client: ' + socket.id)
 			console.log('Total Clients: ', clients)
 			console.log('*****************************************************************')
 
-			await User.findOne({}, 'email password', function(err, data) {
+			User.findOne({}, 'email password', function(err, data) {
 				if(!!data) {
 					const imap = {
 						user: data.email,
@@ -82,10 +82,10 @@ function emailListener() {
 						tlsOptions: { rejectUnauthorized: false }
 					}
 					const n = notifier(imap)
-					n.on('end', async () => await n.start())
-						.on('mail', async mail => {
-							await Email.find({}, 'email', async (err, data) => {
-								!!data && !err && await data.map(async (d) => {
+					n.on('end', () => n.start())
+						.on('mail', mail => {
+							Email.find({}, 'email', (err, data) => {
+								!!data && !err && data.map(async (d) => {
 									if(d.email === mail.from[0].address) {
 										console.log('Email received from ' + mail.from[0].address)
 										const newInbox = Inbox({
@@ -101,12 +101,14 @@ function emailListener() {
 											date: mail.date,
 											body: mail.html,
 										}
-										if(clients.length > 0) {
-											await clients.map((c) => {
-												console.log('Email sent to client ' + c)
-												io.to(c).emit('newemail', { mail: inboxData })
-											})
-										}
+										io.clients((error, cls) => {
+											if(cls.length > 0) {
+												cls.map((c) => {
+													console.log('Email sent to client ' + c)
+													io.to(c).emit('newemail', { mail: inboxData })
+												})
+											}
+										})
 									}
 								})
 							})
