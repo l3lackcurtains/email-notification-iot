@@ -34,7 +34,10 @@ mongoose.Promise = Promise
 mongoose.connect(config.mdb)
 const db = mongoose.connection
 db.on('error', () => console.log('Failed to connect to Database.'))
-	.once('open', () => console.log('Connected to Database.'))
+	.once('open', () => {
+		console.log('Connected to Database.')
+		emailListener()
+	})
 // Using bluebird Promise removes depricated warning
 
 // Middlewares
@@ -58,58 +61,62 @@ server.listen(port, () => {
 const notifier = require('mail-notifier')
 
 function emailListener() {
-	let clients = []
 	io.on('connection', (socket) => {
-		clients.push(socket.id)
-		console.log('client connected.', socket.id, clients)
+		// on disconnected
 		io.on('disconnect', (reason) => {
 			console.log('we lost a client.', reason)
 			var i = clients.indexOf(socket);
 			clients.splice(i, 1)
 		})
-		io.on('start', (data) => {
-			console.log('start', data)
-		})
-		User.findOne({}, 'email password', function(err, data) {
-			if(!!data) {
-				const imap = {
-					user: data.email,
-					password: data.password,
-					host: "imap.gmail.com",
-					port: 993, 
-					tls: true,
-					tlsOptions: { rejectUnauthorized: false }
-				}
-				const n = notifier(imap)
-				n.on('end', () => n.start())
-					.on('mail', mail => {
-						Email.find({}, 'email', (err, data) => {
-							!!data && !err && data.map(async (d) => {
-								if(d.email === mail.from[0].address) {
-									const newInbox = Inbox({
-										from: mail.headers.from,
-										date: mail.date,
-										subject: mail.headers.subject,
-										body: mail.html,
-									})
-									await newInbox.save()
-									const inboxData = {
-										from: mail.headers.from,
-										subject: mail.headers.subject,
-										date: mail.date,
-										body: mail.html,
+
+		// on we have active clients
+		io.clients((error, clients) => {
+			if (error) console.log('Error due to clients.', error)
+			console.log('*****************************************************************')
+			console.log('New Client: ' + socket.id)
+			console.log('Total Clients: ', clients)
+			console.log('*****************************************************************')
+
+			User.findOne({}, 'email password', function(err, data) {
+				if(!!data) {
+					const imap = {
+						user: data.email,
+						password: data.password,
+						host: "imap.gmail.com",
+						port: 993, 
+						tls: true,
+						tlsOptions: { rejectUnauthorized: false }
+					}
+					const n = notifier(imap)
+					n.on('end', () => n.start())
+						.on('mail', mail => {
+							Email.find({}, 'email', (err, data) => {
+								!!data && !err && data.map(async (d) => {
+									if(d.email === mail.from[0].address) {
+										console.log('Email received from ' + mail.from[0].address)
+										const newInbox = Inbox({
+											from: mail.headers.from,
+											date: mail.date,
+											subject: mail.headers.subject,
+											body: mail.html,
+										})
+										await newInbox.save()
+										const inboxData = {
+											from: mail.headers.from,
+											subject: mail.headers.subject,
+											date: mail.date,
+											body: mail.html,
+										}
+										if(clients.length > 0) {
+											clients.map((c) => io.to(c).emit('newemail', { mail: inboxData }))
+										}
 									}
-									if(clients.length > 0) {
-										clients.map((c) => io.to(c).emit('newemail', { mail: inboxData }))
-									}
-								}
+								})
 							})
-						})
-					}).start()	
-				
-				}
+						}).start()	
+					
+					}
+				})
 			})
 		})
 }
-
-emailListener()
