@@ -108,8 +108,10 @@ function emailListener() {
 											body: mail.html,
 										}
 										if(clients.length > 0) {
-											console.log('xxx')
-											clients.map((c) => io.to(c).emit('newemail', { mail: inboxData }))
+											clients.map((c) => {
+												console.log('Email sent to client ' + c)
+												io.to(c).emit('newemail', { mail: inboxData })
+											})
 										}
 									}
 								})
