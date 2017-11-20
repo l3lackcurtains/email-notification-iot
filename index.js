@@ -31,7 +31,7 @@ app.use(helmet())
 
 mongoose.Promise = Promise
 // Setup Mongoose connection with mongoDB
-mongoose.connect(config.mdb)
+mongoose.connect(process.env.MDB)
 const db = mongoose.connection
 db.on('error', () => console.log('Failed to connect to Database.'))
 	.once('open', () => {
