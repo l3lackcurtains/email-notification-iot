@@ -61,29 +61,28 @@ server.listen(port, () => {
 const notifier = require('mail-notifier')
 
 function emailListener() {
-	io.on('connection', async (socket) => {
-		socket.on('entry', (data) => {
-			console.log(data, " has been connected.")
-		})
-		// on we have active clients
-		io.clients((error, clients) => {
-			if (error) console.log('Error due to clients.', error)
-			console.log('*****************************************************************')
-			console.log('New Client: ' + socket.id)
-			console.log('Total Clients: ', clients)
-			console.log('*****************************************************************')
-
-			User.findOne({}, 'email password', function(err, data) {
-				if(!!data) {
-					const imap = {
-						user: data.email,
-						password: data.password,
-						host: "imap.gmail.com",
-						port: 993, 
-						tls: true,
-						tlsOptions: { rejectUnauthorized: false }
-					}
-					const n = notifier(imap)
+	User.findOne({}, 'email password', function(err, data) {
+		if(!!data) {
+			const imap = {
+				user: data.email,
+				password: data.password,
+				host: "imap.gmail.com",
+				port: 993, 
+				tls: true,
+				tlsOptions: { rejectUnauthorized: false }
+			}
+			const n = notifier(imap)
+			io.on('connection', async (socket) => {
+				socket.on('entry', (data) => {
+					console.log(data, " has been connected.")
+				})
+				// on we have active clients
+				io.clients((error, clients) => {
+					if (error) console.log('Error due to clients.', error)
+					console.log('*****************************************************************')
+					console.log('New Client: ' + socket.id)
+					console.log('Total Clients: ', clients)
+					console.log('*****************************************************************')
 					n.on('end', () => n.start())
 						.on('mail', mail => {
 							Email.find({}, 'email', (err, data) => {
@@ -114,10 +113,10 @@ function emailListener() {
 									}
 								})
 							})
-						}).start()	
-					
-					}
+						}).start()
 				})
 			})
-		})
+			
+		}
+	})
 }
