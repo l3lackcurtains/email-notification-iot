@@ -113,7 +113,11 @@ function emailListener() {
 									}
 								})
 							})
-						}).start()
+						})
+						.on('error', e => {
+							console.log("Error: ", e)
+						})
+						.start()
 				})
 			})
 			
