@@ -66,7 +66,7 @@ function emailListener() {
 			const imap = {
 				user: data.email,
 				password: data.password,
-				host: "imap.gmail.com",
+				host: "map.googlemail.com",
 				port: 993, 
 				tls: true,
 				// tlsOptions: { rejectUnauthorized: false }
