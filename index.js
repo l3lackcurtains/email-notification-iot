@@ -70,7 +70,8 @@ function emailListener() {
 			console.log('Socket Error: ', error)
 		})
 
-		setTimeout(() => socket.disconnect(true), 30000);
+		// reconnect everyday
+		setTimeout(() => socket.disconnect(true), 86400000)
 
 		// on we have active clients
 		io.clients((error, clients) => {
