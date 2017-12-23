@@ -61,66 +61,71 @@ server.listen(port, () => {
 const notifier = require('mail-notifier')
 
 function emailListener() {
-	User.findOne({}, 'email password', function(err, data) {
-		if(!!data) {
-			const imap = {
-				user: data.email,
-				password: data.password,
-				host: "imap.gmail.com",
-				port: 993, 
-				tls: true,
-				tlsOptions: { rejectUnauthorized: false }
-			}
-			const n = notifier(imap)
-			io.on('connection', async (socket) => {
-				socket.on('entry', (data) => {
-					console.log(data, " has been connected.")
-				})
-				// on we have active clients
-				io.clients((error, clients) => {
-					if (error) console.log('Error due to clients.', error)
-					console.log('*****************************************************************')
-					console.log('New Client: ' + socket.id)
-					console.log('Total Clients: ', clients)
-					console.log('*****************************************************************')
-					n.on('end', () => n.start())
-						.on('mail', mail => {
-							Email.find({}, 'email', (err, data) => {
-								!!data && !err && data.map(async (d) => {
-									if(d.email === mail.from[0].address) {
-										console.log('Email received from ' + mail.from[0].address)
-										const newInbox = Inbox({
-											from: mail.headers.from,
-											date: mail.date,
-											subject: mail.headers.subject,
-											body: mail.html,
-										})
-										await newInbox.save()
-										const inboxData = {
-											from: mail.headers.from,
-											subject: mail.headers.subject,
-											date: mail.date,
-											body: mail.html,
-										}
-										io.clients((error, cls) => {
-											if(cls.length > 0) {
-												cls.map((c) => {
-													console.log('Email sent to client ' + c)
-													io.to(c).emit('newemail', { mail: inboxData })
-												})
+	io.on('connection', (socket) => {
+		socket.on('entry', (data) => {
+			console.log(data, "[" ,socket.id, "]", "has been connected.")
+		})
+
+		socket.on('error', (error) => {
+			console.log('Socket Error: ', error)
+		})
+
+		// on we have active clients
+		io.clients((error, clients) => {
+			if (error) console.log('Error due to clients.', error)
+			console.log('*****************************************************************')
+			console.log('New Client: ' + socket.id)
+			console.log('Total Clients: ', clients)
+			console.log('*****************************************************************')
+		})
+		User.findOne({}, 'email password', function(err, data) {
+			if(!!data) {
+				const imap = {
+					user: data.email,
+					password: data.password,
+					host: "imap.gmail.com",
+					port: 993, 
+					tls: true,
+					tlsOptions: { rejectUnauthorized: false }
+				}
+				const n = notifier(imap)
+						n.on('end', () => n.start())
+							.on('mail', mail => {
+								Email.find({}, 'email', (err, data) => {
+									!!data && !err && data.map(async (d) => {
+										if(d.email === mail.from[0].address) {
+											console.log('Email received from ' + mail.from[0].address)
+											const newInbox = Inbox({
+												from: mail.headers.from,
+												date: mail.date,
+												subject: mail.headers.subject,
+												body: mail.html,
+											})
+											await newInbox.save()
+											const inboxData = {
+												from: mail.headers.from,
+												subject: mail.headers.subject,
+												date: mail.date,
+												body: mail.html,
 											}
-										})
-									}
+											io.clients((error, cls) => {
+												if(cls.length > 0) {
+													cls.map((c) => {
+														console.log('Email sent to client ' + c)
+														io.to(c).emit('newemail', { mail: inboxData })
+													})
+												}
+											})
+										}
+									})
 								})
 							})
-						})
-						.on('error', e => {
-							console.log("Error: ", e)
-						})
-						.start()
-				})
-			})
-			
-		}
+							.on('error', e => {
+								console.log("Error: ", e)
+							})
+							.start()
+				
+			}
+		})
 	})
 }
