@@ -70,6 +70,8 @@ function emailListener() {
 			console.log('Socket Error: ', error)
 		})
 
+		setTimeout(() => socket.disconnect(true), 30000);
+
 		// on we have active clients
 		io.clients((error, clients) => {
 			if (error) console.log('Error due to clients.', error)
