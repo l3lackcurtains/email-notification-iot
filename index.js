@@ -63,6 +63,10 @@ const notifier = require('mail-notifier')
 function emailListener() {
 	io.on('connection', async (socket) => {
 
+		socket.on('iamin', function (data) {
+			console.log(data, " has been connected.")
+		})
+
 		// on we have active clients
 		io.clients((error, clients) => {
 			if (error) console.log('Error due to clients.', error)
