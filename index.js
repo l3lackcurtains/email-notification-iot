@@ -66,9 +66,9 @@ function emailListener() {
 			const imap = {
 				user: data.email,
 				password: data.password,
-				host: "map.googlemail.com",
+				host: "imap.gmail.com",
 				port: 993, 
-				tls: true,
+				tls: false,
 				// tlsOptions: { rejectUnauthorized: false }
 			}
 			const n = notifier(imap)
