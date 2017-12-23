@@ -68,8 +68,9 @@ function emailListener() {
 				password: data.password,
 				host: "imap.gmail.com",
 				port: 993, 
-				tls: true,
-				tlsOptions: { rejectUnauthorized: false }
+				tls: false,
+				authTimeout: 999999999999999999,
+				// tlsOptions: { rejectUnauthorized: false }
 			}
 			const n = notifier(imap)
 			io.on('connection', async (socket) => {
