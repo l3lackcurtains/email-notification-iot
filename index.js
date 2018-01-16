@@ -89,7 +89,7 @@ function emailListener() {
 					host: "imap.gmail.com",
 					port: 993, 
 					tls: true,
-					tlsOptions: { rejectUnauthorized: false }
+					tlsOptions: { rejectUnauthorized: true }
 				}
 				const n = notifier(imap)
 						n.on('end', () => n.start())
