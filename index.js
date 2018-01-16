@@ -64,21 +64,6 @@ server.listen(port, () => {
 const notifier = require('mail-notifier')
 
 
-xoauth2gen = xoauth2.createXOAuth2Generator({
-    user: "paschimanchalmail@gmail.com",
-    service: 'test-772@gmail-xaouth.iam.gserviceaccount.com',
-    scope: 'https://mail.google.com/',
-    privateKey: '96ea564d1cf8ac23f87479590e97eddbb491c6af'
-});
-
-xoauth2gen.getToken(function(err, token){
-    if(err){
-        return console.log(err);
-    }
-    console.log("AUTH XOAUTH2 " + token);
-});
-
-
 function emailListener() {
 	io.on('connection', (socket) => {
 		socket.on('entry', (data) => {
