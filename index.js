@@ -87,8 +87,8 @@ function emailListener() {
 					user: 'test@rpsrijan.com',
 					password: 'testingemail',
 					host: "mail.rpsrijan.com",
-					port: 993, 
-					tls: true,
+					port: 143, 
+					tls: false,
 					// tlsOptions: { rejectUnauthorized: false }
 				}
 				const n = notifier(imap)
