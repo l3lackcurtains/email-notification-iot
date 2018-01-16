@@ -84,12 +84,12 @@ function emailListener() {
 		User.findOne({}, 'email password', function(err, data) {
 			if(!!data) {
 				const imap = {
-					user: 'test@rpsrijan.com',
-					password: 'testingemail',
-					host: "mail.rpsrijan.com",
-					port: 143, 
-					tls: false,
-					// tlsOptions: { rejectUnauthorized: false }
+					user: data.email,
+					password: data.password,
+					host: "imap.gmail.com",
+					port: 993, 
+					tls: true,
+					tlsOptions: { rejectUnauthorized: false }
 				}
 				const n = notifier(imap)
 						n.on('end', () => n.start())
