@@ -18,7 +18,8 @@
     "passport": "^0.4.0",
     "passport-jwt": "^2.2.1",
     "socket.io": "^2.0.3",
-    "socket.io-client": "^2.0.3"
+    "socket.io-client": "^2.0.3",
+    "xoauth2": "^1.2.0"
   },
   "scripts": {
     "lint": "eslint .",
