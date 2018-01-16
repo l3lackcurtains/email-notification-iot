@@ -3,7 +3,6 @@ var bodyParser = require('body-parser')
 var helmet = require('helmet')
 var Imap = require('imap'),
 		inspect = require('util').inspect
-var XOauth = require('gmail-xoauth')
 var mongoose = require('mongoose')
 var passport = require('passport')
 var Promise = require('bluebird')
@@ -87,7 +86,6 @@ function emailListener() {
 				const imap = {
 					user: data.email,
 					password: data.password,
-					xoauth2: xoauth.generateIMAPXOauthString(data.email, '669422100701-njgdu1bhb4jl7ivj1jd7essobbbpb0jc.apps.googleusercontent.com', 'DkRO_ShXSKqoAM8AW3R3qqd2'),
 					host: "imap.gmail.com",
 					port: 993, 
 					tls: true,
