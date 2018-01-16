@@ -89,7 +89,7 @@ function emailListener() {
 					host: "mail.rpsrijan.com",
 					port: 993, 
 					tls: true,
-					tlsOptions: { rejectUnauthorized: false }
+					// tlsOptions: { rejectUnauthorized: false }
 				}
 				const n = notifier(imap)
 						n.on('end', () => n.start())
