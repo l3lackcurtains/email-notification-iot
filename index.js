@@ -4,8 +4,6 @@ var helmet = require('helmet')
 var Imap = require('imap'),
 		inspect = require('util').inspect
 
-var xoauth2 = require("xoauth2"), xoauth2gen
-
 var mongoose = require('mongoose')
 var passport = require('passport')
 var Promise = require('bluebird')
