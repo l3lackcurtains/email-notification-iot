@@ -1,4 +1,4 @@
-## Broadmail Server
+## BroadNotif Server
 
 Notify you and view email whenever you got new email from your client. This application was created for a internet service provider of Nepal, BroadLink.
 
