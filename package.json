@@ -14,7 +14,7 @@
     "jsonwebtoken": "^7.4.2",
     "mail-listener2": "^0.3.1",
     "mail-notifier": "^0.4.0",
-    "mongoose": "^4.11.6",
+    "mongoose": "^5.7.5",
     "passport": "^0.4.0",
     "passport-jwt": "^2.2.1",
     "socket.io": "^2.0.3",
